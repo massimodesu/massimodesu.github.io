@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>18+ Video Access</title>
 
-  <!-- Якщо Adsterra попросить meta-verify, встав їхній <meta ...> сюди -->
-
   <style>
     :root { --bg:#0f1115; --card:#151821; --muted:#9aa3b2; --accent:#3b82f6; --border:#232838; }
     *{box-sizing:border-box}
@@ -33,7 +31,7 @@
     <h1 id="title">Confirm 18+ to watch</h1>
     <div class="handle">channel: <a href="https://t.me/massimo_desu" target="_blank" rel="noopener">@massimo_desu</a></div>
 
-    <div class="preview" id="preview">Video preview / cover</div>
+    <div class="preview" id="preview">Loading preview…</div>
     <p class="fine" id="note">Enjoy your time watching, dear anime connoisseurs, stay with us🫦</p>
 
     <div class="actions">
@@ -43,10 +41,9 @@
 
     <div class="timer" id="status"></div>
 
-    <!-- 300x250 банер усередині картки -->
+    <!-- Banner 300x250 -->
     <div class="banner-wrap">
-      <div class="banner-box" id="bannerSlot">
-        <!-- BEGIN: Adsterra Banner 300x250 -->
+      <div class="banner-box">
         <script type="text/javascript">
           atOptions = {
             'key' : 'c493e0c00ad06c76089c47fdbb8fc023',
@@ -57,36 +54,49 @@
           };
         </script>
         <script type="text/javascript" src="//www.highperformanceformat.com/c493e0c00ad06c76089c47fdbb8fc023/invoke.js"></script>
-        <!-- END: Adsterra Banner 300x250 -->
       </div>
     </div>
   </div>
 
-  <!-- BEGIN: Adsterra Social Bar / Interstitial -->
+  <!-- Adsterra Social Bar / Interstitial -->
   <script type='text/javascript' src='//pl27597423.revenuecpmgate.com/9b/14/8e/9b148ec6162884a5c0b44984f1f5a854.js'></script>
-  <!-- END: Adsterra Social Bar / Interstitial -->
 
   <script>
-    // Параметри хеша: #v=<VIDEO_URL>|img=<IMAGE_URL>|delay=7|t=...|btn=...|note=...|offer=<URL>|offerText=...
-    function parseHash(){const raw=(location.hash||"").replace(/^#/,"");const out={};if(!raw)return out;raw.split("|").forEach(p=>{const i=p.indexOf("=");if(i>0){out[p.slice(0,i).trim()]=decodeURIComponent(p.slice(i+1).trim());}});return out;}
+    // Хеш-параметри: #v=<VIDEO_URL>|img=<IMAGE_URL>|delay=7|t=...|btn=...|note=...|offer=<URL>|offerText=...
+    function parseHash(){
+      const raw=(location.hash||"").replace(/^#/,"");
+      const out={}; if(!raw) return out;
+      raw.split("|").forEach(p=>{const i=p.indexOf("="); if(i>0){out[p.slice(0,i).trim()]=decodeURIComponent(p.slice(i+1).trim());}});
+      return out;
+    }
     const p=parseHash();
     const V=p.v||""; const IMG=p.img||""; const D=Math.max(0,parseInt(p.delay||"7",10));
+
     if(p.t)   document.getElementById("title").textContent=p.t;
     if(p.btn) document.getElementById("watchBtn").textContent=p.btn;
     if(p.note)document.getElementById("note").textContent=p.note;
-    if(IMG){const im=new Image(); im.onload=()=>{const b=document.getElementById("preview"); b.innerHTML=""; b.appendChild(im)}; im.alt="Cover"; im.src=IMG;}
     if(p.offer){const ob=document.getElementById("offerBtn"); ob.href=p.offer; if(p.offerText) ob.textContent=p.offerText;}
+
+    // ---- DEFAULT COVER ----
+    const DEFAULT_IMG = "/three_girls_crop_1280x720.jpg";
+    const imgToUse = IMG || DEFAULT_IMG;
+    if (imgToUse){
+      const im=new Image();
+      im.onload=()=>{const b=document.getElementById("preview"); b.innerHTML=""; b.appendChild(im);};
+      im.alt="Cover";
+      im.src=imgToUse;
+    }
 
     const statusEl=document.getElementById("status"), btn=document.getElementById("watchBtn");
     if(!V){btn.disabled=true; statusEl.textContent="Error: missing video URL (v= in the hash).";}
 
-    // авто-резюм: якщо скинуло на корінь/перезавантажило, і є запам’ятована ціль — одразу відкриваємо відео
+    // авто-резюм, якщо webview скинув на корінь
     (function autoResume(){
       try{
-        const raw = localStorage.getItem('vgate_next');
+        const raw=localStorage.getItem('vgate_next');
         if(raw){
-          const obj = JSON.parse(raw);
-          if(obj && obj.url && Date.now() - (obj.ts||0) < 2*60*1000 && !location.hash.includes('v=')){
+          const obj=JSON.parse(raw);
+          if(obj && obj.url && Date.now()-(obj.ts||0)<2*60*1000 && !location.hash.includes('v=')){
             window.location.replace(obj.url);
           }
         }
@@ -100,12 +110,12 @@
     }
 
     document.getElementById("watchBtn").addEventListener('click',()=>{
-      try{ localStorage.setItem('vgate_next', JSON.stringify({url: V, ts: Date.now()})); }catch(e){}
+      try{localStorage.setItem('vgate_next', JSON.stringify({url:V, ts:Date.now()}));}catch(e){}
       const end=Date.now()+D*1000;
       (function tick(){
         const left=Math.max(0,Math.ceil((end-Date.now())/1000));
         statusEl.textContent="Preparing your video… "+left+"s";
-        if(Date.now()>=end){robustGo(V);} else {setTimeout(tick,250);}
+        if(Date.now()>=end){robustGo(V);} else setTimeout(tick,250);
       })();
       setTimeout(()=>robustGo(V),(D+0.6)*1000);
       setTimeout(()=>robustGo(V),(D+2.2)*1000);
