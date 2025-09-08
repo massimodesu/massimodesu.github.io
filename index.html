@@ -80,10 +80,7 @@
     const statusEl=document.getElementById("status"), btn=document.getElementById("watchBtn");
     if(!V){btn.disabled=true; statusEl.textContent="Error: missing video URL (v= in the hash).";}
 
-    // iOS/TG стабільність: відкриваємо пусту вкладку по кліку (жест дозволяє), після таймера підставляємо V.
-    let preOpenedWin=null;
-
-    // auto-resume: якщо після показу реклами скинуло на корінь і ми знову тут — одразу ведемо на відео
+    // авто-резюм: якщо скинуло на корінь/перезавантажило, і є запам’ятована ціль — одразу відкриваємо відео
     (function autoResume(){
       try{
         const raw = localStorage.getItem('vgate_next');
@@ -97,7 +94,6 @@
     })();
 
     function robustGo(url){
-      if(preOpenedWin && !preOpenedWin.closed){try{preOpenedWin.location=url;return;}catch(e){}}
       try{window.location.assign(url);}catch(e){}
       try{window.location.replace(url);}catch(e){}
       try{window.open(url,'_self');}catch(e){}
@@ -105,7 +101,6 @@
 
     document.getElementById("watchBtn").addEventListener('click',()=>{
       try{ localStorage.setItem('vgate_next', JSON.stringify({url: V, ts: Date.now()})); }catch(e){}
-      try{ preOpenedWin = window.open('about:blank','_blank'); }catch(e){ preOpenedWin=null; }
       const end=Date.now()+D*1000;
       (function tick(){
         const left=Math.max(0,Math.ceil((end-Date.now())/1000));
