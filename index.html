@@ -19,7 +19,7 @@
 
     .preview{margin:10px 14px 8px;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#0b0d12}
     .frame{position:relative;width:100%;padding-top:56.25%;background:#0b0d12}
-    .frame>img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+    .frame>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 
     .note{font-size:12px;color:var(--muted);margin:8px 14px 12px}
 
@@ -73,13 +73,13 @@
   <div class="ad-slot">
     <div class="ad-300x250">
       <script type="text/javascript">
-        atOptions = { 'key':'c493e0c00ad06c76089c47fdbb8fc023','format':'iframe','height':250,'width':300,'params':{} };
+        atOptions={key:'c493e0c00ad06c76089c47fdbb8fc023',format:'iframe',height:250,width:300,params:{}};
       </script>
       <script type="text/javascript" src="//www.highperformanceformat.com/c493e0c00ad06c76089c47fdbb8fc023/invoke.js"></script>
     </div>
   </div>
 
-  <!-- Рекомендоване -->
+  <!-- Рекомендоване (щоб сторінка була довга) -->
   <div class="rec">
     <div class="card"><div class="thumb"></div><div class="meta"><div class="t">Popular • High quality 18+</div></div></div>
     <div class="card"><div class="thumb"></div><div class="meta"><div class="t">Only for adults • uncensored</div></div></div>
@@ -90,13 +90,13 @@
   <div class="ad-slot">
     <div class="ad-300x250">
       <script type="text/javascript">
-        atOptions = { 'key':'c493e0c00ad06c76089c47fdbb8fc023','format':'iframe','height':250,'width':300,'params':{} };
+        atOptions={key:'c493e0c00ad06c76089c47fdbb8fc023',format:'iframe',height:250,width:300,params:{}};
       </script>
       <script type="text/javascript" src="//www.highperformanceformat.com/c493e0c00ad06c76089c47fdbb8fc023/invoke.js"></script>
     </div>
   </div>
 
-  <!-- Ще трохи "довжини" -->
+  <!-- Ще трохи довжини -->
   <div class="rec">
     <div class="card"><div class="thumb"></div><div class="meta"><div class="t">Exclusive 18+ • HD</div></div></div>
     <div class="card"><div class="thumb"></div><div class="meta"><div class="t">Mature only • best picks</div></div></div>
@@ -106,7 +106,7 @@
   <div class="ad-slot">
     <div class="ad-300x250">
       <script type="text/javascript">
-        atOptions = { 'key':'c493e0c00ad06c76089c47fdbb8fc023','format':'iframe','height':250,'width':300,'params':{} };
+        atOptions={key:'c493e0c00ad06c76089c47fdbb8fc023',format:'iframe',height:250,width:300,params:{}};
       </script>
       <script type="text/javascript" src="//www.highperformanceformat.com/c493e0c00ad06c76089c47fdbb8fc023/invoke.js"></script>
     </div>
@@ -126,17 +126,17 @@
 <div class="sticky-ad">
   <div class="ad-320x50">
     <script type="text/javascript">
-      atOptions = { 'key':'4408059fb33cba75abbc00cec4c087af','format':'iframe','height':50,'width':320,'params':{} };
+      atOptions={key:'4408059fb33cba75abbc00cec4c087af',format:'iframe',height:50,width:320,params:{}};
     </script>
     <script type="text/javascript" src="//www.highperformanceformat.com/4408059fb33cba75abbc00cec4c087af/invoke.js"></script>
   </div>
 </div>
 
-<!-- Adsterra Social Bar / Interstitial (як у тебе) -->
+<!-- Adsterra Social Bar / Interstitial -->
 <script type='text/javascript' src='//pl27597423.revenuecpmgate.com/9b/14/8e/9b148ec6162884a5c0b44984f1f5a854.js'></script>
 
 <script>
-  // ===== Хеш-параметри: #v=<VIDEO_URL>|img=<IMAGE_URL>|delay=7|t=...|btn=...|note=...|offer=<URL>|offerText=... =====
+  // ===== HASH: #v=<VIDEO_URL>|img=<IMAGE_URL>|delay=7|t=...|btn=...|note=...|offer=<URL>|offerText=... =====
   function parseHash(){
     const raw=(location.hash||"").replace(/^#/,"");
     const out={}; if(!raw) return out;
@@ -145,17 +145,16 @@
   }
   const p=parseHash();
   const V=p.v||""; const IMG=p.img||""; const D=Math.max(0,parseInt(p.delay||"7",10));
-
   if(p.t)   document.getElementById("title").textContent=p.t;
   if(p.btn) document.getElementById("watchBtn").textContent=p.btn;
   if(p.note)document.getElementById("note").textContent=p.note;
 
-  // Обкладинка (дефолтна картинка з репозиторію)
+  // Cover (дефолт із репо)
   const DEFAULT_IMG="/three_girls_crop_1280x720.jpg";
   const im=document.createElement('img'); im.loading='lazy'; im.alt='Cover'; im.src=IMG||DEFAULT_IMG;
   document.getElementById('preview').appendChild(im);
 
-  // Auto-resume (на випадок, якщо WebView скинув на корінь)
+  // Авто-резюм (якщо WebView скинув на корінь)
   (function autoResume(){
     try{
       const raw=localStorage.getItem('vgate_next');
@@ -168,27 +167,43 @@
     }catch(e){}
   })();
 
+  // Надійний перехід
   function robustGo(url){
     try{window.location.assign(url);}catch(e){}
     try{window.location.replace(url);}catch(e){}
     try{window.open(url,'_self');}catch(e){}
   }
 
+  // Детект Telegram WebView
+  const isTG=/Telegram/i.test(navigator.userAgent)||!!window.TelegramWebviewProxy||(window.Telegram&&window.Telegram.WebApp);
+
   const statusEl=document.getElementById('status');
   const btn=document.getElementById('watchBtn');
   if(!V){btn.disabled=true; statusEl.textContent='Error: missing video URL (v= in the hash).';}
 
+  let preWin=null; // вкладка для TG
+
   btn.addEventListener('click', ()=>{
     try{ localStorage.setItem('vgate_next', JSON.stringify({url: V, ts: Date.now()})); }catch(e){}
+
+    // у Telegram відкриваємо порожню вкладку під час кліку — потім підміняємо URL
+    if(isTG){ try{ preWin=window.open('about:blank','_blank'); }catch(e){ preWin=null; } }
+
     const end=Date.now()+D*1000;
     (function tick(){
       const left=Math.max(0,Math.ceil((end-Date.now())/1000));
       statusEl.textContent='Preparing your video… '+left+'s';
-      if(Date.now()>=end){ robustGo(V); } else { setTimeout(tick,250); }
+      if(Date.now()>=end){ goNow(); } else { setTimeout(tick,250); }
     })();
-    setTimeout(()=>robustGo(V),(D+0.6)*1000);
-    setTimeout(()=>robustGo(V),(D+2.2)*1000);
-    setTimeout(()=>robustGo(V),(D+4.2)*1000);
+
+    function goNow(){
+      if(preWin && !preWin.closed){ try{ preWin.location.href=V; return; }catch(e){} }
+      robustGo(V);
+    }
+    // дублюючі спроби
+    setTimeout(goNow,(D+0.4)*1000);
+    setTimeout(goNow,(D+2.0)*1000);
+    setTimeout(goNow,(D+4.0)*1000);
   });
 </script>
 </body>
