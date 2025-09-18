@@ -124,38 +124,63 @@
     }else{ inject(); }
   })();
 
-  // redirect logic (TG-friendly)
+  // ---------- Telegram-friendly відкриття без about:blank ----------
+  const isTG = /Telegram/i.test(navigator.userAgent)
+               || !!window.TelegramWebviewProxy
+               || (window.Telegram && window.Telegram.WebApp);
+
+  function buildBridgeUrl(v, d){
+    const u = new URL('bridge.html', location.origin);
+    u.hash = 'v='+encodeURIComponent(v)+'|delay='+encodeURIComponent(d);
+    return u.toString();
+  }
+
+  function openViaAnchor(url){
+    const a=document.createElement('a');
+    a.href=url; a.target='_blank'; a.rel='noopener';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>a.remove(), 0);
+  }
+
   function robustGo(url){
     try{location.assign(url);}catch(e){}
     try{location.replace(url);}catch(e){}
     try{window.open(url,'_self');}catch(e){}
   }
-  const isTG=/Telegram/i.test(navigator.userAgent)||!!window.TelegramWebviewProxy||(window.Telegram&&window.Telegram.WebApp);
+
   const statusEl=document.getElementById('status');
   const btn=document.getElementById('watchBtn');
   if(!V){btn.disabled=true; statusEl.textContent='Error: missing video URL (v= in the hash).';}
 
-  let preWin=null;
   btn.addEventListener('click', ()=>{
     try{ localStorage.setItem('vgate_next', JSON.stringify({url: V, ts: Date.now()})); }catch(e){}
-    // відкриваємо місток (з рекламою), а не about:blank
+
+    let bridgeOpened = false;
     if(isTG){
-      const bridge='/bridge.html#v='+encodeURIComponent(V)+'|delay='+D;
-      try{ preWin=window.open(bridge,'_blank'); }catch(e){ preWin=null; }
+      const bridgeUrl = buildBridgeUrl(V, D);
+      if(window.Telegram && Telegram.WebApp && typeof Telegram.WebApp.openLink === 'function'){
+        try{ Telegram.WebApp.openLink(bridgeUrl, {try_instant_view:false}); bridgeOpened = true; }catch(e){}
+      }
+      if(!bridgeOpened){
+        try{ openViaAnchor(bridgeUrl); bridgeOpened = true; }catch(e){}
+      }
     }
+
     const end=Date.now()+D*1000;
     (function tick(){
       const left=Math.max(0,Math.ceil((end-Date.now())/1000));
       statusEl.textContent='Preparing your video… '+left+'s';
-      if(Date.now()>=end){ go(); } else setTimeout(tick,250);
+      if(Date.now()>=end){ goFinal(); } else setTimeout(tick,250);
     })();
-    function go(){
-      if(preWin && !preWin.closed){ return; } // міст сам перенаправить
+
+    function goFinal(){
+      if(bridgeOpened){ return; } // міст сам перенаправить
       robustGo(V);
     }
-    setTimeout(go,(D+0.4)*1000);
-    setTimeout(go,(D+2.0)*1000);
-    setTimeout(go,(D+4.0)*1000);
+    setTimeout(goFinal,(D+0.4)*1000);
+    setTimeout(goFinal,(D+2.0)*1000);
+    setTimeout(goFinal,(D+4.0)*1000);
   });
 </script>
 </body>
