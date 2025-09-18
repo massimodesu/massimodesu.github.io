@@ -77,7 +77,7 @@
 <script src='//pl27597423.revenuecpmgate.com/9b/14/8e/9b148ec6162884a5c0b44984f1f5a854.js'></script>
 
 <script>
-  // --------- HASH ---------
+  // ===== Parse hash =====
   function parseHash(){
     const raw=(location.hash||"").replace(/^#/,""); const out={}; if(!raw) return out;
     raw.split("|").forEach(p=>{const i=p.indexOf("="); if(i>0){out[p.slice(0,i).trim()]=decodeURIComponent(p.slice(i+1).trim());}});
@@ -124,25 +124,14 @@
     }else{ inject(); }
   })();
 
-  // ---------- Telegram-friendly відкриття без about:blank ----------
-  const isTG = /Telegram/i.test(navigator.userAgent)
-               || !!window.TelegramWebviewProxy
-               || (window.Telegram && window.Telegram.WebApp);
+  // ===== No about:blank in Telegram: open bridge in SAME tab =====
+  const isTG=/Telegram/i.test(navigator.userAgent)||!!window.TelegramWebviewProxy||(window.Telegram&&window.Telegram.WebApp);
 
-  function buildBridgeUrl(v, d){
-    const u = new URL('bridge.html', location.origin);
-    u.hash = 'v='+encodeURIComponent(v)+'|delay='+encodeURIComponent(d);
+  function buildBridgeUrl(v,d){
+    const u=new URL('bridge.html', location.origin);
+    u.hash='v='+encodeURIComponent(v)+'|delay='+encodeURIComponent(d);
     return u.toString();
   }
-
-  function openViaAnchor(url){
-    const a=document.createElement('a');
-    a.href=url; a.target='_blank'; a.rel='noopener';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(()=>a.remove(), 0);
-  }
-
   function robustGo(url){
     try{location.assign(url);}catch(e){}
     try{location.replace(url);}catch(e){}
@@ -156,26 +145,20 @@
   btn.addEventListener('click', ()=>{
     try{ localStorage.setItem('vgate_next', JSON.stringify({url: V, ts: Date.now()})); }catch(e){}
 
-    let bridgeOpened = false;
+    // Telegram → одразу переходимо на bridge.html у ЦІЙ самій вкладці (без about:blank)
     if(isTG){
-      const bridgeUrl = buildBridgeUrl(V, D);
-      if(window.Telegram && Telegram.WebApp && typeof Telegram.WebApp.openLink === 'function'){
-        try{ Telegram.WebApp.openLink(bridgeUrl, {try_instant_view:false}); bridgeOpened = true; }catch(e){}
-      }
-      if(!bridgeOpened){
-        try{ openViaAnchor(bridgeUrl); bridgeOpened = true; }catch(e){}
-      }
+      location.href = buildBridgeUrl(V, D);
+      return;
     }
 
+    // Інші браузери → таймер і прямий редірект
     const end=Date.now()+D*1000;
     (function tick(){
       const left=Math.max(0,Math.ceil((end-Date.now())/1000));
       statusEl.textContent='Preparing your video… '+left+'s';
       if(Date.now()>=end){ goFinal(); } else setTimeout(tick,250);
     })();
-
     function goFinal(){
-      if(bridgeOpened){ return; } // міст сам перенаправить
       robustGo(V);
     }
     setTimeout(goFinal,(D+0.4)*1000);
