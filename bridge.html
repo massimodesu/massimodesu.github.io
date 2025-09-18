@@ -15,7 +15,7 @@
     .ad-slot{display:flex;justify-content:center;margin:10px 0}
     .ad-300x250{width:300px;height:250px}
     .ad-320x50{width:320px;height:50px}
-    .status{margin-top:8px;font-size:12px;color:var(--muted);text-align:center}
+    .status{margin-top:10px;font-size:12px;color:var(--muted);text-align:center}
   </style>
 </head>
 <body>
@@ -24,7 +24,7 @@
     <h1>Preparing your video…</h1>
     <div class="muted">Please wait a moment. You will be redirected automatically.</div>
 
-    <!-- 300×250 на містку -->
+    <!-- 300×250 #1 (звичайне завантаження) -->
     <div class="ad-slot">
       <div class="ad-300x250">
         <script>atOptions={key:'c493e0c00ad06c76089c47fdbb8fc023',format:'iframe',height:250,width:300,params:{}};</script>
@@ -32,11 +32,16 @@
       </div>
     </div>
 
+    <!-- 300×250 #2 (lazy-load ближче до в’юпорту) -->
+    <div class="ad-slot">
+      <div class="ad-300x250" id="lazy300_2"></div>
+    </div>
+
     <div class="status" id="status">Loading…</div>
   </div>
 </div>
 
-<!-- Sticky 320×50 (на містку теж заробляє) -->
+<!-- Sticky 320×50 (низ екрана) -->
 <div style="position:fixed;left:0;right:0;bottom:0;padding:6px 0;background:rgba(15,17,21,.9);backdrop-filter:blur(6px);border-top:1px solid var(--border);display:flex;justify-content:center;z-index:50">
   <div class="ad-320x50">
     <script>atOptions={key:'4408059fb33cba75abbc00cec4c087af',format:'iframe',height:50,width:320,params:{}};</script>
@@ -45,7 +50,7 @@
 </div>
 
 <script>
-  // читаємо #v=...|delay=...
+  // --- читання параметрів з хеша ---
   function parseHash(){
     const raw=(location.hash||"").replace(/^#/,""); const out={}; if(!raw) return out;
     raw.split("|").forEach(p=>{const i=p.indexOf("="); if(i>0){out[p.slice(0,i).trim()]=decodeURIComponent(p.slice(i+1).trim());}});
@@ -55,7 +60,26 @@
   const statusEl=document.getElementById('status');
   if(!V){ statusEl.textContent='Error: missing video URL.'; throw new Error('no V'); }
 
-  // таймер і редірект
+  // --- lazy-load другого 300×250 ---
+  (function(){
+    const slot=document.getElementById('lazy300_2'); if(!slot) return;
+    function inject(){
+      if(slot.dataset.loaded) return; slot.dataset.loaded=1;
+      const s1=document.createElement('script');
+      s1.textContent="atOptions={key:'c493e0c00ad06c76089c47fdbb8fc023',format:'iframe',height:250,width:300,params:{}};";
+      const s2=document.createElement('script');
+      s2.src='//www.highperformanceformat.com/c493e0c00ad06c76089c47fdbb8fc023/invoke.js';
+      slot.append(s1,s2);
+    }
+    if('IntersectionObserver' in window){
+      const io=new IntersectionObserver(es=>{
+        es.forEach(e=>{ if(e.isIntersecting){ inject(); io.disconnect(); } });
+      },{root:null,rootMargin:'200px 0px'});
+      io.observe(slot);
+    }else{ inject(); }
+  })();
+
+  // --- таймер і редірект на відео ---
   const end=Date.now()+D*1000;
   (function tick(){
     const left=Math.max(0,Math.ceil((end-Date.now())/1000));
