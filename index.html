@@ -4,13 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>18+ Video Access</title>
-
   <style>
     :root{--bg:#0f1115;--card:#151821;--muted:#9aa3b2;--accent:#3b82f6;--border:#232838;--txt:#e8e8e8}
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
     .page{min-height:100vh}
-
     .head{padding:16px 14px 0}
     .chip{display:inline-block;font-size:11px;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:4px 8px}
     h1{font-size:18px;margin:10px 0 6px;line-height:1.25}
@@ -20,20 +18,16 @@
     .preview{margin:10px 14px 8px;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#0b0d12}
     .frame{position:relative;width:100%;padding-top:56.25%;background:#0b0d12}
     .frame>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-
     .note{font-size:12px;color:var(--muted);margin:8px 14px 12px}
 
-    /* Ads */
     .ad-slot{display:flex;justify-content:center;margin:12px 0}
     .ad-300x250{width:300px;height:250px}
     .ad-320x50{width:320px;height:50px}
 
-    /* Низ сторінки */
     .actions{padding:14px}
     .btn{width:100%;display:inline-block;text-align:center;border:0;border-radius:14px;padding:14px 16px;background:var(--accent);color:#fff;font-weight:800;font-size:16px}
     .status{margin-top:8px;font-size:12px;color:var(--muted);text-align:center}
 
-    /* Sticky 320×50 */
     .sticky-ad{position:fixed;left:0;right:0;bottom:0;padding:6px 0;background:rgba(15,17,21,.9);backdrop-filter:blur(6px);border-top:1px solid var(--border);display:flex;justify-content:center;z-index:50}
     .spacer{height:70px}
 
@@ -46,7 +40,6 @@
 <body>
 <div class="page">
 
-  <!-- Верх -->
   <div class="head">
     <span class="chip">18+ content • adults only</span>
     <h1 id="title">Confirm 18+ to watch</h1>
@@ -55,90 +48,48 @@
     </div>
   </div>
 
-  <!-- Обкладинка -->
-  <div class="preview">
-    <div class="frame" id="preview"></div>
-  </div>
+  <div class="preview"><div class="frame" id="preview"></div></div>
   <p class="note" id="note">Enjoy your time watching, dear anime connoisseurs, stay with us🫦</p>
 
   <!-- 300×250 (TOP) -->
   <div class="ad-slot">
     <div class="ad-300x250">
-      <script type="text/javascript">
-        atOptions={key:'c493e0c00ad06c76089c47fdbb8fc023',format:'iframe',height:250,width:300,params:{}};
-      </script>
-      <script type="text/javascript" src="//www.highperformanceformat.com/c493e0c00ad06c76089c47fdbb8fc023/invoke.js"></script>
+      <script>atOptions={key:'c493e0c00ad06c76089c47fdbb8fc023',format:'iframe',height:250,width:300,params:{}};</script>
+      <script src="//www.highperformanceformat.com/c493e0c00ad06c76089c47fdbb8fc023/invoke.js"></script>
     </div>
   </div>
 
-  <!-- INLINE 320×50 #1 (замість “рекомендованого”) -->
+  <!-- 300×250 (BOTTOM, lazy-load) -->
   <div class="ad-slot">
-    <div class="ad-320x50">
-      <script type="text/javascript">
-        atOptions={key:'4408059fb33cba75abbc00cec4c087af',format:'iframe',height:50,width:320,params:{}};
-      </script>
-      <script type="text/javascript" src="//www.highperformanceformat.com/4408059fb33cba75abbc00cec4c087af/invoke.js"></script>
+    <div class="ad-300x250" id="lazy300bottom">
+      <!-- буде підставлено скрипт, коли блок майже у в'юпорті -->
     </div>
   </div>
 
-  <!-- 300×250 (MID) -->
-  <div class="ad-slot">
-    <div class="ad-300x250">
-      <script type="text/javascript">
-        atOptions={key:'c493e0c00ad06c76089c47fdbb8fc023',format:'iframe',height:250,width:300,params:{}};
-      </script>
-      <script type="text/javascript" src="//www.highperformanceformat.com/c493e0c00ad06c76089c47fdbb8fc023/invoke.js"></script>
-    </div>
-  </div>
-
-  <!-- INLINE 320×50 #2 -->
-  <div class="ad-slot">
-    <div class="ad-320x50">
-      <script type="text/javascript">
-        atOptions={key:'4408059fb33cba75abbc00cec4c087af',format:'iframe',height:50,width:320,params:{}};
-      </script>
-      <script type="text/javascript" src="//www.highperformanceformat.com/4408059fb33cba75abbc00cec4c087af/invoke.js"></script>
-    </div>
-  </div>
-
-  <!-- 300×250 (BOTTOM) -->
-  <div class="ad-slot">
-    <div class="ad-300x250">
-      <script type="text/javascript">
-        atOptions={key:'c493e0c00ad06c76089c47fdbb8fc023',format:'iframe',height:250,width:300,params:{}};
-      </script>
-      <script type="text/javascript" src="//www.highperformanceformat.com/c493e0c00ad06c76089c47fdbb8fc023/invoke.js"></script>
-    </div>
-  </div>
-
-  <!-- Основна дія (в самому низу) -->
+  <!-- Основна дія — внизу -->
   <div class="actions">
     <button class="btn" id="watchBtn">Watch FULL</button>
     <div class="status" id="status"></div>
   </div>
 
-  <!-- щоб sticky не перекривав кнопку -->
   <div class="spacer"></div>
 </div>
 
 <!-- Sticky 320×50 -->
 <div class="sticky-ad">
   <div class="ad-320x50">
-    <script type="text/javascript">
-      atOptions={key:'4408059fb33cba75abbc00cec4c087af',format:'iframe',height:50,width:320,params:{}};
-    </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/4408059fb33cba75abbc00cec4c087af/invoke.js"></script>
+    <script>atOptions={key:'4408059fb33cba75abbc00cec4c087af',format:'iframe',height:50,width:320,params:{}};</script>
+    <script src="//www.highperformanceformat.com/4408059fb33cba75abbc00cec4c087af/invoke.js"></script>
   </div>
 </div>
 
-<!-- Adsterra Social Bar / Interstitial -->
-<script type='text/javascript' src='//pl27597423.revenuecpmgate.com/9b/14/8e/9b148ec6162884a5c0b44984f1f5a854.js'></script>
+<!-- Social Bar / Interstitial -->
+<script src='//pl27597423.revenuecpmgate.com/9b/14/8e/9b148ec6162884a5c0b44984f1f5a854.js'></script>
 
 <script>
   // ===== HASH: #v=<VIDEO_URL>|img=<IMAGE_URL>|delay=7|t=...|btn=...|note=...|offer=<URL>|offerText=... =====
   function parseHash(){
-    const raw=(location.hash||"").replace(/^#/,"");
-    const out={}; if(!raw) return out;
+    const raw=(location.hash||"").replace(/^#/,""); const out={}; if(!raw) return out;
     raw.split("|").forEach(p=>{const i=p.indexOf("="); if(i>0){out[p.slice(0,i).trim()]=decodeURIComponent(p.slice(i+1).trim());}});
     return out;
   }
@@ -148,61 +99,73 @@
   if(p.btn) document.getElementById("watchBtn").textContent=p.btn;
   if(p.note)document.getElementById("note").textContent=p.note;
 
-  // Cover (дефолт із репо)
+  // Cover
   const DEFAULT_IMG="/three_girls_crop_1280x720.jpg";
   const im=document.createElement('img'); im.loading='lazy'; im.alt='Cover'; im.src=IMG||DEFAULT_IMG;
   document.getElementById('preview').appendChild(im);
 
-  // Авто-резюм (якщо WebView скинув на корінь)
-  (function autoResume(){
+  // Auto-resume
+  (function(){
     try{
       const raw=localStorage.getItem('vgate_next');
       if(raw){
-        const obj=JSON.parse(raw);
-        if(obj && obj.url && Date.now()-(obj.ts||0)<2*60*1000 && !location.hash.includes('v=')){
-          window.location.replace(obj.url);
+        const o=JSON.parse(raw);
+        if(o && o.url && Date.now()-(o.ts||0)<2*60*1000 && !location.hash.includes('v=')){
+          location.replace(o.url);
         }
       }
     }catch(e){}
   })();
 
-  // Надійний перехід
+  // Lazy-load нижнього 300×250 (коли блок майже у в'юпорті)
+  (function(){
+    const slot=document.getElementById('lazy300bottom'); if(!slot) return;
+    function inject(){
+      if(slot.dataset.loaded) return; slot.dataset.loaded=1;
+      const s1=document.createElement('script');
+      s1.textContent="atOptions={key:'c493e0c00ad06c76089c47fdbb8fc023',format:'iframe',height:250,width:300,params:{}};";
+      const s2=document.createElement('script');
+      s2.src='//www.highperformanceformat.com/c493e0c00ad06c76089c47fdbb8fc023/invoke.js';
+      slot.appendChild(s1); slot.appendChild(s2);
+    }
+    if('IntersectionObserver' in window){
+      const io=new IntersectionObserver((entries)=>{
+        entries.forEach(e=>{ if(e.isIntersecting){ inject(); io.disconnect(); } });
+      },{root:null,rootMargin:'200px 0px',threshold:0});
+      io.observe(slot);
+    }else{ // старі браузери
+      inject();
+    }
+  })();
+
+  // Надійний перехід (TG-friendly)
   function robustGo(url){
-    try{window.location.assign(url);}catch(e){}
-    try{window.location.replace(url);}catch(e){}
+    try{location.assign(url);}catch(e){}
+    try{location.replace(url);}catch(e){}
     try{window.open(url,'_self');}catch(e){}
   }
-
-  // Детект Telegram WebView
   const isTG=/Telegram/i.test(navigator.userAgent)||!!window.TelegramWebviewProxy||(window.Telegram&&window.Telegram.WebApp);
-
   const statusEl=document.getElementById('status');
   const btn=document.getElementById('watchBtn');
   if(!V){btn.disabled=true; statusEl.textContent='Error: missing video URL (v= in the hash).';}
 
-  let preWin=null; // вкладка для TG
-
+  let preWin=null;
   btn.addEventListener('click', ()=>{
     try{ localStorage.setItem('vgate_next', JSON.stringify({url: V, ts: Date.now()})); }catch(e){}
-
-    // у Telegram відкриваємо порожню вкладку під час кліку — потім підміняємо URL
     if(isTG){ try{ preWin=window.open('about:blank','_blank'); }catch(e){ preWin=null; } }
-
     const end=Date.now()+D*1000;
     (function tick(){
       const left=Math.max(0,Math.ceil((end-Date.now())/1000));
       statusEl.textContent='Preparing your video… '+left+'s';
-      if(Date.now()>=end){ goNow(); } else { setTimeout(tick,250); }
+      if(Date.now()>=end){ go(); } else setTimeout(tick,250);
     })();
-
-    function goNow(){
+    function go(){
       if(preWin && !preWin.closed){ try{ preWin.location.href=V; return; }catch(e){} }
       robustGo(V);
     }
-    // дублюючі спроби
-    setTimeout(goNow,(D+0.4)*1000);
-    setTimeout(goNow,(D+2.0)*1000);
-    setTimeout(goNow,(D+4.0)*1000);
+    setTimeout(go,(D+0.4)*1000);
+    setTimeout(go,(D+2.0)*1000);
+    setTimeout(go,(D+4.0)*1000);
   });
 </script>
 </body>
