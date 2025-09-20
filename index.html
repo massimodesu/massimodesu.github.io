@@ -4,199 +4,151 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>18+ Video Access</title>
+
+  <!-- (не обов’язково) верифікація JuicyAds, залишив якщо треба -->
+  <meta name="juicyads-site-verification" content="180f829bcd9b697667e91e9d204791ab">
+
   <style>
-    :root{--bg:#0f1115;--card:#151821;--muted:#9aa3b2;--accent:#3b82f6;--border:#232838;--txt:#e8e8e8}
+    :root { --bg:#0f1115; --card:#151821; --muted:#9aa3b2; --accent:#3b82f6; --border:#232838; --txt:#e8e8e8; }
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-    .page{min-height:100vh}
-    .head{padding:16px 14px 0}
-    .chip{display:inline-block;font-size:11px;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:4px 8px}
-    h1{font-size:18px;margin:10px 0 6px;line-height:1.25}
-    .handle{font-size:12px;color:var(--muted);margin-bottom:8px}
-    .handle a{color:var(--muted);text-decoration:none}
-    .preview{margin:10px 14px 8px;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#0b0d12}
-    .frame{position:relative;width:100%;padding-top:56.25%}
-    .frame>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-    .note{font-size:12px;color:var(--muted);margin:8px 14px 12px}
-    .ad-slot{display:flex;justify-content:center;margin:12px 0}
+    .page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:22px}
+    .card{max-width:700px;width:100%;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:0 6px 30px rgba(0,0,0,.35)}
+    .badge{display:inline-block;font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:999px;color:#9aa3b2;margin-bottom:10px}
+    h1{font-size:20px;margin:0 0 6px}
+    .handle{font-size:12px;color:#9aa3b2;margin:0 0 12px}
+    .handle a{color:#9aa3b2;text-decoration:none}
+    .preview{aspect-ratio:16/9;background:#0b0d12;border:1px dashed var(--border);border-radius:12px;margin:12px 0 8px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:13px;overflow:hidden}
+    .preview img{width:100%;height:100%;object-fit:cover;display:block}
+    .ad-wrap{display:flex;justify-content:center;margin:12px 0}
     .ad-300x250{width:300px;height:250px}
-    .ad-320x50{width:320px;height:50px}
-    .actions{padding:14px;display:flex;flex-direction:column;gap:10px}
-    .btn{width:100%;display:inline-block;text-align:center;border:0;border-radius:14px;padding:14px 16px;background:var(--accent);color:#fff;font-weight:800;font-size:16px}
+    .ad-300x50{width:300px;height:50px}
+    .actions{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+    .btn{display:inline-block;width:100%;padding:12px 16px;border-radius:12px;border:0;background:var(--accent);color:#fff;font-weight:800;font-size:16px;cursor:pointer}
     .btn.alt{background:transparent;border:1px solid var(--border);color:#e8e8e8;font-weight:700}
-    .status{font-size:12px;color:var(--muted);text-align:center}
-    .sticky-ad{position:fixed;left:0;right:0;bottom:0;padding:6px 0;background:rgba(15,17,21,.9);backdrop-filter:blur(6px);border-top:1px solid var(--border);display:flex;justify-content:center;z-index:50}
-    .spacer{height:70px}
-    @media (min-width:768px){
-      .head,.note,.actions{max-width:760px;margin:0 auto}
-      .preview{max-width:760px;margin-inline:auto}
-    }
+    .timer{margin-top:10px;font-size:12px;color:#9aa3b2}
+    .fine{font-size:12px;color:#9aa3b2;margin-top:12px}
+    .sticky{position:fixed;left:0;right:0;bottom:0;padding:8px;background:rgba(15,17,21,.9);backdrop-filter:blur(6px);border-top:1px solid var(--border);display:flex;justify-content:center;z-index:50}
+    .sticky .slot{width:320px;height:50px}
+    .close-x{position:absolute;right:10px;top:8px;width:28px;height:28px;line-height:28px;text-align:center;border-radius:999px;border:1px solid var(--border);color:#b9c0cf;font-weight:700;cursor:pointer}
+    @media(min-width:768px){ .card{padding:22px} }
   </style>
+
+  <!-- JuicyAds loader (один раз на сторінку) -->
+  <script async src="https://poweredby.jads.co/js/jads.js"></script>
 </head>
 <body>
-<div class="page">
-  <div class="head">
-    <span class="chip">18+ content • adults only</span>
-    <h1 id="title">Confirm 18+ to watch</h1>
-    <div class="handle">channel:
-      <a href="https://t.me/massimo_desu" target="_blank" rel="noopener">@massimo_desu</a>
+  <div class="page">
+    <div class="card">
+      <div class="badge">18+ content • adults only</div>
+      <h1 id="title">Confirm 18+ to watch</h1>
+      <div class="handle">channel: <a href="https://t.me/massimo_desu" target="_blank" rel="noopener">@massimo_desu</a></div>
+
+      <div class="preview" id="preview">Loading preview…</div>
+
+      <!-- TOP 300x250 — Adsterra -->
+      <div class="ad-wrap">
+        <div class="ad-300x250" id="ast_top_300x250"></div>
+      </div>
+
+      <p class="fine" id="note">Enjoy your time watching, dear anime connoisseurs, stay with us🫦</p>
+
+      <!-- MID 300x250 — JuicyAds -->
+      <div class="ad-wrap">
+        <div class="ad-300x250" id="ja_mid_300x250">
+          <ins id="1101752" data-width="300" data-height="250"></ins>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="watchBtn">Watch FULL</button>
+        <a class="btn alt" id="offerBtn" href="https://www.revenuecpmgate.com/a0vdxj40u7?key=caff2ec1b619c7bc75892bfffdea43a6" target="_blank" rel="noopener">Extra 18+</a>
+      </div>
+
+      <div class="timer" id="status"></div>
+
+      <!-- BRIDGE 300x50 — JuicyAds (під таймером) -->
+      <div class="ad-wrap">
+        <div class="ad-300x50" id="ja_bridge_300x50">
+          <ins id="1101753" data-width="300" data-height="50"></ins>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="preview"><div class="frame" id="preview"></div></div>
-  <p class="note" id="note">Enjoy your time watching, dear anime connoisseurs, stay with us🫦</p>
-
-  <!-- 300×250 (TOP) -->
-  <div class="ad-slot">
-    <div class="ad-300x250">
-      <script>
-        atOptions = { key:'c493e0c00ad06c76089c47fdbb8fc023', format:'iframe', height:250, width:300, params:{psid:'top300'} };
-      </script>
-      <script src="//www.highperformanceformat.com/c493e0c00ad06c76089c47fdbb8fc023/invoke.js"></script>
-    </div>
+  <!-- STICKY 320x50 — Adsterra -->
+  <div class="sticky" id="sticky_bar">
+    <div class="close-x" id="sticky_close">×</div>
+    <div class="slot" id="ast_sticky_320x50"></div>
   </div>
 
-  <!-- 300×250 (BOTTOM, lazy) -->
-  <div class="ad-slot">
-    <div class="ad-300x250" id="lazy300bottom"></div>
-  </div>
+  <!-- Adsterra Social Bar / Interstitial (як у тебе було) -->
+  <script src="//pl27597423.revenuecpmgate.com/9b/14/8e/9b148ec6162884a5c0b44984f1f5a854.js"></script>
 
-  <div class="actions">
-    <button class="btn" id="watchBtn">Watch FULL</button>
-    <button class="btn alt" id="openExternal" style="display:none">Open in Browser</button>
-    <div class="status" id="status"></div>
-  </div>
-  <div class="spacer"></div>
-</div>
-
-<!-- Sticky 320×50 -->
-<div class="sticky-ad">
-  <div class="ad-320x50">
-    <script>
-      atOptions = { key:'4408059fb33cba75abbc00cec4c087af', format:'iframe', height:50, width:320, params:{psid:'sticky320'} };
-    </script>
-    <script src="//www.highperformanceformat.com/4408059fb33cba75abbc00cec4c087af/invoke.js"></script>
-  </div>
-</div>
-
-<script>
-  // --------- HASH ---------
-  function parseHash(){
-    const raw=(location.hash||"").replace(/^#/,""); const out={}; if(!raw) return out;
-    raw.split("|").forEach(p=>{const i=p.indexOf("="); if(i>0){out[p.slice(0,i).trim()]=decodeURIComponent(p.slice(i+1).trim());}});
-    return out;
-  }
-  const p=parseHash();
-  const V=p.v||""; const IMG=p.img||""; const D=Math.max(0,parseInt(p.delay||"7",10));
-  if(p.t)   document.getElementById("title").textContent=p.t;
-  if(p.btn) document.getElementById("watchBtn").textContent=p.btn;
-  if(p.note)document.getElementById("note").textContent=p.note;
-
-  // cover
-  const DEFAULT_IMG="/three_girls_crop_1280x720.jpg";
-  const im=document.createElement('img'); im.loading='lazy'; im.alt='Cover'; im.src=IMG||DEFAULT_IMG;
-  document.getElementById('preview').appendChild(im);
-
-  // lazy-load bottom 300x250
-  (function(){
-    const slot=document.getElementById('lazy300bottom'); if(!slot) return;
-    function inject(){
-      if(slot.dataset.loaded) return; slot.dataset.loaded=1;
-      const s1=document.createElement('script');
-      s1.textContent="atOptions={key:'c493e0c00ad06c76089c47fdbb8fc023',format:'iframe',height:250,width:300,params:{psid:'bottom300'}};";
-      const s2=document.createElement('script');
-      s2.src='//www.highperformanceformat.com/c493e0c00ad06c76089c47fdbb8fc023/invoke.js';
-      slot.append(s1,s2);
+  <script>
+    /* ================== HASH PARAMS ================== */
+    function parseHash(){
+      const raw=(location.hash||"").replace(/^#/,""); const out={}; if(!raw) return out;
+      raw.split("|").forEach(p=>{const i=p.indexOf("="); if(i>0){out[p.slice(0,i).trim()]=decodeURIComponent(p.slice(i+1).trim());}});
+      return out;
     }
-    if('IntersectionObserver' in window){
-      const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){inject(); io.disconnect();}})},{root:null,rootMargin:'200px 0px'});
-      io.observe(slot);
-    }else{ inject(); }
-  })();
+    const p=parseHash();
+    const V=p.v||""; const IMG=p.img||""; const D=Math.max(0,parseInt(p.delay||"7",10));
+    if(p.t)   document.getElementById("title").textContent=p.t;
+    if(p.btn) document.getElementById("watchBtn").textContent=p.btn;
+    if(p.note)document.getElementById("note").textContent=p.note;
+    // cover
+    (function(){const im=new Image(); im.alt="Cover"; im.src=IMG||"/three_girls_crop_1280x720.jpg"; im.onload=()=>{const b=document.getElementById('preview'); b.innerHTML=""; b.appendChild(im);};})();
 
-  // ---------- Env detect ----------
-  const isTG = /Telegram/i.test(navigator.userAgent) || !!window.TelegramWebviewProxy || (window.Telegram && window.Telegram.WebApp);
-  const isAndroid = /Android/i.test(navigator.userAgent);
-  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const statusEl=document.getElementById("status"), btn=document.getElementById("watchBtn");
+    if(!V){btn.disabled=true; statusEl.textContent="Error: missing video URL (v= in the hash)."}
 
-  // ===== AUTO open this page in Chrome if Telegram on Android =====
-  (function autoExternalizeIfTGAndroid(){
-    if(!isTG || !isAndroid) return;
-    if(sessionStorage.getItem('ext_auto_tried')) return;
-    sessionStorage.setItem('ext_auto_tried','1');
-    try{
-      const current = location.href;
-      const noScheme = current.replace(/^https?:\/\//,'');
-      const fallback = encodeURIComponent(current);
-      const intent = `intent://${noScheme}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${fallback};end`;
-      location.href = intent;
-    }catch(e){}
-  })();
-
-  function buildBridgeUrl(v, d){
-    const u = new URL('bridge.html', location.origin);
-    u.hash = 'v='+encodeURIComponent(v)+'|delay='+encodeURIComponent(d);
-    return u.toString();
-  }
-  function robustGo(url){
-    try{location.assign(url);}catch(e){}
-    try{location.replace(url);}catch(e){}
-    try{window.open(url,'_self');}catch(e){}
-  }
-
-  const statusEl=document.getElementById('status');
-  const btn=document.getElementById('watchBtn');
-  const btnExt=document.getElementById('openExternal');
-
-  if(!V){btn.disabled=true; statusEl.textContent='Error: missing video URL (v= in the hash).';}
-
-  // показати "Open in Browser" лише у Telegram
-  if(isTG){ btnExt.style.display='inline-block'; }
-
-  // основна кнопка
-  btn.addEventListener('click', ()=>{
-    try{ localStorage.setItem('vgate_next', JSON.stringify({url: V, ts: Date.now()})); }catch(e){}
-    if(isTG){
-      const dTG = Math.max(D, 9);    // мінімум 9с для TG
-      location.href = buildBridgeUrl(V, dTG); // без about:blank
-      return;
-    }
-    const end=Date.now()+D*1000;
-    (function tick(){
-      const left=Math.max(0,Math.ceil((end-Date.now())/1000));
-      statusEl.textContent='Preparing your video… '+left+'s';
-      if(Date.now()>=end){ goFinal(); } else setTimeout(tick,250);
+    /* ================== ADS ================== */
+    // Adsterra 300x250 (top)
+    (function(){
+      const el=document.getElementById('ast_top_300x250'); if(!el) return;
+      el.innerHTML =
+        "<script>atOptions={key:'c493e0c00ad06c76089c47fdbb8fc023',format:'iframe',height:250,width:300,params:{}};<\/script>" +
+        "<script src='//www.highperformanceformat.com/c493e0c00ad06c76089c47fdbb8fc023/invoke.js'><\/script>";
     })();
-    function goFinal(){ robustGo(V); }
-    setTimeout(goFinal,(D+0.4)*1000); setTimeout(goFinal,(D+2.0)*1000); setTimeout(goFinal,(D+4.0)*1000);
-  });
 
-  // кнопка "Open in Browser"
-  btnExt.addEventListener('click', async ()=>{
-    if(isAndroid){
-      const noScheme = V.replace(/^https?:\/\//,'');
-      const intent = 'intent://'+noScheme+'#Intent;scheme=https;package=com.android.chrome;end';
-      location.href = intent;
-      setTimeout(()=>{ location.href = buildBridgeUrl(V, Math.max(D,9)); }, 1200); // fallback на місток
-    }else if(isIOS){
-      try{ await navigator.clipboard?.writeText(V);}catch(e){}
-      alert('Open in Safari: tap ⋯ (top-right) → "Open in Safari".\n(The link is copied to clipboard.)');
-    }else{
-      robustGo(V);
+    // JuicyAds 300x250 (mid)
+    try{ (window.adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1101752}); }catch(e){}
+
+    // JuicyAds 300x50 (bridge)
+    try{ (window.adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1101753}); }catch(e){}
+
+    // Adsterra 320x50 sticky bottom
+    (function(){
+      const el=document.getElementById('ast_sticky_320x50'); if(!el) return;
+      el.innerHTML =
+        "<script>atOptions={key:'4408059fb33cba75abbc00cec4c087af',format:'iframe',height:50,width:320,params:{}};<\/script>" +
+        "<script src='//www.highperformanceformat.com/4408059fb33cba75abbc00cec4c087af/invoke.js'><\/script>";
+    })();
+
+    // Закриття sticky
+    document.getElementById('sticky_close')?.addEventListener('click',()=>{ document.getElementById('sticky_bar').style.display='none'; });
+    // щоб sticky не наїжджав на кнопку
+    document.body.style.paddingBottom='68px';
+
+    /* ================== WATCH FLOW ================== */
+    function robustGo(url){
+      try{location.assign(url);}catch(e){}
+      try{location.replace(url);}catch(e){}
+      try{window.open(url,'_self');}catch(e){}
     }
-  });
-</script>
-</body>
-</html> <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="juicyads-site-verification" content="180f829bcd9b697667e91e9d204791ab">
-  <title>cd-gate</title>
-</head>
-<body>
-  cd-gate ready
+    document.getElementById("watchBtn").addEventListener('click',()=>{
+      try{ localStorage.setItem('vgate_next', JSON.stringify({url: V, ts: Date.now()})); }catch(e){}
+      const end=Date.now()+D*1000;
+      (function tick(){
+        const left=Math.max(0,Math.ceil((end-Date.now())/1000));
+        statusEl.textContent="Preparing your video… "+left+"s";
+        if(Date.now()>=end){ robustGo(V); } else setTimeout(tick,250);
+      })();
+      setTimeout(()=>robustGo(V),(D+0.6)*1000);
+      setTimeout(()=>robustGo(V),(D+2.2)*1000);
+      setTimeout(()=>robustGo(V),(D+4.2)*1000);
+    });
+  </script>
 </body>
 </html>
-
