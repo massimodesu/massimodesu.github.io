@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>18+ Video Access</title>
 
-  <!-- Підвантажимо постер наперед (Telegram іноді “лінивий”) -->
+  <!-- Прелоад постера (TG іноді "лінивий") -->
   <link rel="preload" as="image" href="https://massimodesu.github.io/three_girls_crop_1280x720.jpg" imagesrcset="https://massimodesu.github.io/three_girls_crop_1280x720.jpg 1280w">
 
   <style>
@@ -24,11 +24,13 @@
     .btn{display:inline-block;padding:12px 18px;border-radius:12px;border:0;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
     .btn.offer{background:#ef4444}
     .timer{margin-top:8px;font-size:12px;color:#9aa3b2}
-    .slot300{display:flex;justify-content:center;margin:10px 0}
-    .slot300 .box{width:300px;height:250px}
+
+    /* банерні слоти */
+    .slot300stack{display:flex;flex-direction:column;align-items:center;gap:12px;margin:12px 0}
+    .slot300stack .box{width:300px;height:250px}
     .slot320{display:flex;justify-content:center;margin:14px 0 4px}
     .slot320 .box{width:320px;height:50px}
-    @media (max-width:360px){ .slot300{transform:scale(.95);transform-origin:top center} }
+    @media (max-width:360px){ .slot300stack{transform:scale(.95);transform-origin:top center} }
   </style>
 </head>
 <body>
@@ -40,15 +42,28 @@
     <!-- Прев'ю (абсолютний URL + фолбек) -->
     <div class="preview" id="preview">Loading preview…</div>
 
-    <!-- TOP Adsterra 300x250 -->
-    <div class="slot300">
+    <!-- ===== TOP stack: Adsterra 300x250 + JuicyAds 300x250 ===== -->
+    <div class="slot300stack">
+      <!-- Adsterra 300x250 -->
       <div class="box" id="ad_top_300">
         <script type="text/javascript">
           atOptions = { 'key':'c493e0c00ad06c76089c47fdbb8fc023', 'format':'iframe', 'height':250, 'width':300, 'params':{} };
         </script>
         <script type="text/javascript" src="//www.highperformanceformat.com/c493e0c00ad06c76089c47fdbb8fc023/invoke.js"></script>
       </div>
+
+      <!-- JuicyAds 300x250 -->
+      <div class="box" id="juicy_top_300">
+        <!-- JuicyAds v3.0 -->
+        <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+        <ins id="1101752" data-width="300" data-height="250"></ins>
+        <script type="text/javascript" data-cfasync="false" async>
+          (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1101752});
+        </script>
+        <!-- JuicyAds END -->
+      </div>
     </div>
+    <!-- ===== /TOP stack ===== -->
 
     <p class="fine" id="note">Enjoy your time watching, dear anime connoisseurs, stay with us🫦</p>
 
@@ -61,7 +76,7 @@
 
     <div class="timer" id="status"></div>
 
-    <!-- BOTTOM Adsterra 320x50 -->
+    <!-- Bottom Adsterra 320x50 -->
     <div class="slot320">
       <div class="box" id="ad_bottom_320">
         <script type="text/javascript">
@@ -97,10 +112,7 @@
       im.alt = "Cover";
       im.referrerPolicy = "no-referrer";
       im.onload = () => { const b=document.getElementById("preview"); b.innerHTML=""; b.appendChild(im); };
-      im.onerror = () => {
-        // додатковий фолбек (інколи TG не любить кеш) — пробуємо ще раз з іншим квері
-        im.src = ABS + "?t=" + Date.now();
-      };
+      im.onerror = () => { im.src = ABS + "?t=" + Date.now(); };
       im.src = src;
     })();
 
@@ -108,9 +120,8 @@
     const btn = document.getElementById("watchBtn");
     if(!V){ btn.disabled=true; statusEl.textContent="Error: missing video URL (v= in the hash)."; }
 
-    // ---- РЕДІРЕКТ: БЕЗ about:blank, тільки те, що TG точно дозволяє ----
+    // ---- РЕДІРЕКТ БЕЗ about:blank ----
     function go(url){
-      // найстабільніше для webview — пряма заміна поточної сторінки
       try{ window.location.href = url; return; }catch(e){}
       try{ window.location.assign(url); return; }catch(e){}
       try{ window.location.replace(url); return; }catch(e){}
@@ -118,7 +129,6 @@
 
     btn.addEventListener('click', ()=>{
       try{ localStorage.setItem('vgate_next', JSON.stringify({url:V, ts:Date.now()})); }catch(e){}
-      // у TG даємо мінімум 5s, щоб банери/DOM точно встигли (і TG не "заморозив" скрипти)
       const ua = navigator.userAgent||""; const isTG=/Telegram/i.test(ua);
       const delay = isTG ? Math.max(D,5) : D;
 
@@ -129,21 +139,18 @@
         if(Date.now()>=end){ go(V); } else { setTimeout(tick,250); }
       })();
 
-      // одна додаткова спроба на випадок блоків
       setTimeout(()=>go(V),(delay+1.2)*1000);
     });
 
-    // ---- АВТО-РЕЗЮМЕ (корисно для TG, якщо іноді скидає на корінь) ----
+    // ---- АВТО-РЕЗЮМЕ (опційно) ----
     (function(){
       try{
         const raw = localStorage.getItem('vgate_next');
         if(!raw) return;
         const obj = JSON.parse(raw);
         if(obj && obj.url && Date.now()-(obj.ts||0) < 2*60*1000 && !location.hash.includes('v=')){
-          // не чіпаємо користувача, просто готуємося
-          /* якщо треба автоперекидання назад на відео після перезавантаження — розкоментуй:
-          window.location.href = obj.url;
-          */
+          // можна авто-повернення, якщо треба — розкоментувати:
+          // window.location.href = obj.url;
         }
       }catch(e){}
     })();
