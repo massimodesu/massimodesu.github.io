@@ -16,6 +16,8 @@
     .ad-300x250{width:300px;height:250px}
     .ad-320x50{width:320px;height:50px}
     .status{margin-top:10px;font-size:12px;color:var(--muted);text-align:center}
+    .row{display:flex;gap:10px;justify-content:center;margin-top:8px}
+    .btn{border:1px solid var(--border);background:transparent;color:#e8e8e8;border-radius:12px;padding:10px 14px;font-weight:700}
   </style>
 </head>
 <body>
@@ -28,13 +30,7 @@
     <div class="ad-slot">
       <div class="ad-300x250">
         <script>
-          atOptions = {
-            key: 'c493e0c00ad06c76089c47fdbb8fc023',
-            format: 'iframe',
-            height: 250,
-            width: 300,
-            params: { psid: 'bridge300_1' } // SubID
-          };
+          atOptions = { key:'c493e0c00ad06c76089c47fdbb8fc023', format:'iframe', height:250, width:300, params:{psid:'bridge300_1'} };
         </script>
         <script src="//www.highperformanceformat.com/c493e0c00ad06c76089c47fdbb8fc023/invoke.js"></script>
       </div>
@@ -45,6 +41,10 @@
       <div class="ad-300x250" id="lazy300_2"></div>
     </div>
 
+    <div class="row" id="xtraRow" style="display:none">
+      <button class="btn" id="openExternalB">Open in Browser</button>
+    </div>
+
     <div class="status" id="status">Loading…</div>
   </div>
 </div>
@@ -53,20 +53,13 @@
 <div style="position:fixed;left:0;right:0;bottom:0;padding:6px 0;background:rgba(15,17,21,.9);backdrop-filter:blur(6px);border-top:1px solid var(--border);display:flex;justify-content:center;z-index:50">
   <div class="ad-320x50">
     <script>
-      atOptions = {
-        key: '4408059fb33cba75abbc00cec4c087af',
-        format: 'iframe',
-        height: 50,
-        width: 320,
-        params: { psid: 'bridge_sticky' } // SubID
-      };
+      atOptions = { key:'4408059fb33cba75abbc00cec4c087af', format:'iframe', height:50, width:320, params:{psid:'bridge_sticky'} };
     </script>
     <script src="//www.highperformanceformat.com/4408059fb33cba75abbc00cec4c087af/invoke.js"></script>
   </div>
 </div>
 
 <script>
-  // --- читання параметрів з хеша ---
   function parseHash(){
     const raw=(location.hash||"").replace(/^#/,""); const out={}; if(!raw) return out;
     raw.split("|").forEach(p=>{const i=p.indexOf("="); if(i>0){out[p.slice(0,i).trim()]=decodeURIComponent(p.slice(i+1).trim());}});
@@ -75,14 +68,32 @@
   const p=parseHash(); const V=p.v||"";
   let D = Math.max(0, parseInt(p.delay || "5", 10));
 
-  // мінімум 9 c для Telegram
   const isTG = /Telegram/i.test(navigator.userAgent) || !!window.TelegramWebviewProxy || (window.Telegram && window.Telegram.WebApp);
-  if (isTG) D = Math.max(D, 9);
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  if (isTG) D = Math.max(D, 9); // мінімум 9с у TG
 
   const statusEl=document.getElementById('status');
   if(!V){ statusEl.textContent='Error: missing video URL.'; throw new Error('no V'); }
 
-  // --- lazy-load другого 300×250 ---
+  // показати "Open in Browser" тільки у TG
+  if(isTG){ document.getElementById('xtraRow').style.display='flex'; }
+  document.getElementById('openExternalB').addEventListener('click', async ()=>{
+    if(isAndroid){
+      const noScheme = V.replace(/^https?:\/\//,'');
+      const intent = 'intent://'+noScheme+'#Intent;scheme=https;package=com.android.chrome;end';
+      location.href = intent;
+      setTimeout(()=>{ location.href = V; }, 1200);
+    }else if(isIOS){
+      try{ await navigator.clipboard?.writeText(V);}catch(e){}
+      alert('Open in Safari: tap ⋯ → "Open in Safari". Link copied to clipboard.');
+    }else{
+      try{location.assign(V);}catch(e){}
+    }
+  });
+
+  // lazy другого 300×250
   (function(){
     const slot=document.getElementById('lazy300_2'); if(!slot) return;
     function inject(){
@@ -94,14 +105,12 @@
       slot.append(s1,s2);
     }
     if('IntersectionObserver' in window){
-      const io=new IntersectionObserver(es=>{
-        es.forEach(e=>{ if(e.isIntersecting){ inject(); io.disconnect(); } });
-      },{root:null,rootMargin:'200px 0px'});
+      const io=new IntersectionObserver(es=>{es.forEach(e=>{ if(e.isIntersecting){ inject(); io.disconnect(); } });},{root:null,rootMargin:'200px 0px'});
       io.observe(slot);
     }else{ inject(); }
   })();
 
-  // --- таймер і редірект на відео ---
+  // таймер і редірект
   const end=Date.now()+D*1000;
   (function tick(){
     const left=Math.max(0,Math.ceil((end-Date.now())/1000));
