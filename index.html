@@ -119,6 +119,20 @@
   const isAndroid = /Android/i.test(navigator.userAgent);
   const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
+  // ===== AUTO open this page in Chrome if Telegram on Android =====
+  (function autoExternalizeIfTGAndroid(){
+    if(!isTG || !isAndroid) return;
+    if(sessionStorage.getItem('ext_auto_tried')) return;
+    sessionStorage.setItem('ext_auto_tried','1');
+    try{
+      const current = location.href;
+      const noScheme = current.replace(/^https?:\/\//,'');
+      const fallback = encodeURIComponent(current);
+      const intent = `intent://${noScheme}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${fallback};end`;
+      location.href = intent;
+    }catch(e){}
+  })();
+
   function buildBridgeUrl(v, d){
     const u = new URL('bridge.html', location.origin);
     u.hash = 'v='+encodeURIComponent(v)+'|delay='+encodeURIComponent(d);
