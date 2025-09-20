@@ -4,32 +4,25 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>18+ Video Access</title>
+
+  <!-- Підвантажимо постер наперед (Telegram іноді “лінивий”) -->
+  <link rel="preload" as="image" href="https://massimodesu.github.io/three_girls_crop_1280x720.jpg" imagesrcset="https://massimodesu.github.io/three_girls_crop_1280x720.jpg 1280w">
+
   <style>
     :root { --bg:#0f1115; --card:#151821; --muted:#9aa3b2; --accent:#3b82f6; --border:#232838; --txt:#e8e8e8; }
     *{box-sizing:border-box}
-    body{
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      background:var(--bg); color:var(--txt); margin:0; padding:16px;
-      min-height:100vh; display:flex; align-items:center; justify-content:center;
-    }
-    .card{max-width:700px;width:100%;background:var(--card);border:1px solid var(--border);
-      border-radius:16px;padding:16px;box-shadow:0 6px 30px rgba(0,0,0,.35)}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt);margin:0;padding:16px;min-height:100vh;display:flex;align-items:center;justify-content:center}
+    .card{max-width:700px;width:100%;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 6px 30px rgba(0,0,0,.35)}
     h1{font-size:20px;margin:0 0 6px}
     .handle{font-size:12px;color:#9aa3b2;margin:0 0 12px}
     .handle a{color:#9aa3b2;text-decoration:none}
-    .badge{display:inline-block;font-size:11px;padding:4px 8px;border:1px solid var(--border);
-      border-radius:999px;color:#9aa3b2;margin-bottom:10px}
-    .preview{aspect-ratio:16/9;background:#0b0d12;border:1px dashed var(--border);
-      border-radius:12px;margin:12px 0 8px;display:flex;align-items:center;justify-content:center;
-      color:#94a3b8;font-size:13px;overflow:hidden}
-    /* показуємо ВЕСЬ постер без кропу */
+    .badge{display:inline-block;font-size:11px;padding:4px 8px;border:1px solid var(--border);border-radius:999px;color:#9aa3b2;margin-bottom:10px}
+    .preview{aspect-ratio:16/9;background:#0b0d12;border:1px dashed var(--border);border-radius:12px;margin:12px 0 8px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:13px;overflow:hidden}
     .preview img{width:100%;height:100%;object-fit:contain;display:block}
     .fine{font-size:12px;color:#9aa3b2;margin:8px 0 12px}
     .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
-    .btn{display:inline-block;padding:12px 18px;border-radius:12px;border:0;background:var(--accent);
-      color:#fff;font-weight:700;cursor:pointer}
+    .btn{display:inline-block;padding:12px 18px;border-radius:12px;border:0;background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
     .btn.offer{background:#ef4444}
-    .btn.ghost{background:transparent;border:1px solid var(--border);color:#e8e8e8}
     .timer{margin-top:8px;font-size:12px;color:#9aa3b2}
     .slot300{display:flex;justify-content:center;margin:10px 0}
     .slot300 .box{width:300px;height:250px}
@@ -44,7 +37,7 @@
     <h1 id="title">Confirm 18+ to watch</h1>
     <div class="handle">channel: <a href="https://t.me/massimo_desu" target="_blank" rel="noopener">@massimo_desu</a></div>
 
-    <!-- Прев'ю з дефолтним постером 3 дівчат (ABSOLUTE URL) -->
+    <!-- Прев'ю (абсолютний URL + фолбек) -->
     <div class="preview" id="preview">Loading preview…</div>
 
     <!-- TOP Adsterra 300x250 -->
@@ -61,7 +54,6 @@
 
     <div class="actions">
       <button class="btn" id="watchBtn">Watch FULL</button>
-      <button class="btn ghost" id="openInBrowser" style="display:none">Open in Browser</button>
       <a class="btn offer" id="offerBtn"
          href="https://www.revenuecpmgate.com/a0vdxj40u7?key=caff2ec1b619c7bc75892bfffdea43a6"
          target="_blank" rel="noopener">Extra 18+</a>
@@ -81,10 +73,9 @@
   </div>
 
   <script>
-    // ---- Параметри з хеша: #v=...|img=...|delay=7|t=...|btn=...|note=...|offer=...|offerText=... ----
+    // ---- ПАРАМЕТРИ З ХЕША ----
     function parseHash(){
-      const raw=(location.hash||"").replace(/^#/,"");
-      const out={}; if(!raw) return out;
+      const raw=(location.hash||"").replace(/^#/,""); const out={}; if(!raw) return out;
       raw.split("|").forEach(p=>{const i=p.indexOf("="); if(i>0){out[p.slice(0,i).trim()]=decodeURIComponent(p.slice(i+1).trim());}});
       return out;
     }
@@ -98,82 +89,64 @@
     if(p.note)document.getElementById("note").textContent = p.note;
     if(p.offer){ const ob=document.getElementById("offerBtn"); ob.href=p.offer; if(p.offerText) ob.textContent=p.offerText; }
 
-    // --- Показуємо дефолтний постер через абсолютний URL (TG webview інколи ламає root-слеш) ---
+    // ---- ПОСТЕР (жорсткий абсолютний + фолбек) ----
     (function(){
-      const ABS = "https://massimodesu.github.io/three_girls_crop_1280x720.jpg"; // абсолютна адреса
+      const ABS = "https://massimodesu.github.io/three_girls_crop_1280x720.jpg";
       const src = IMG || (ABS + "?v=1");
       const im = new Image();
       im.alt = "Cover";
+      im.referrerPolicy = "no-referrer";
       im.onload = () => { const b=document.getElementById("preview"); b.innerHTML=""; b.appendChild(im); };
+      im.onerror = () => {
+        // додатковий фолбек (інколи TG не любить кеш) — пробуємо ще раз з іншим квері
+        im.src = ABS + "?t=" + Date.now();
+      };
       im.src = src;
     })();
 
     const statusEl = document.getElementById("status");
     const btn = document.getElementById("watchBtn");
-    const openBtn = document.getElementById("openInBrowser");
-
-    // --- Детект Telegram / платформи ---
-    const ua = navigator.userAgent || "";
-    const isTelegram = /Telegram/i.test(ua);
-    const isAndroid  = /Android/i.test(ua);
-    const isIOS      = /iPhone|iPad|iPod/i.test(ua);
-
-    // У Telegram показуємо допоміжну кнопку "Open in Browser"
-    if (isTelegram) {
-      openBtn.style.display = "inline-block";
-      openBtn.addEventListener("click", ()=>{
-        const link = V || location.href;
-        try { navigator.clipboard && navigator.clipboard.writeText(link); } catch(e){}
-        alert(isIOS
-          ? 'Tap ••• (top-right) → "Open in Browser". Link copied to clipboard.'
-          : 'Opening in external browser may work better. Link copied to clipboard.'
-        );
-      });
-    }
-
     if(!V){ btn.disabled=true; statusEl.textContent="Error: missing video URL (v= in the hash)."; }
 
-    // ---- ПЕРЕХІД БЕЗ about:blank ----
-    function goSameTab(url){
-      try{ window.location.assign(url); }catch(e){}
-      try{ window.location.replace(url); }catch(e){}
-      try{ window.open(url,'_self'); }catch(e){}
-    }
-
-    function openForTelegram(url){
-      if (isAndroid) {
-        // пробуємо відкрити Chrome через intent:// (більшість TG Android підтримують)
-        try {
-          const cleaned = url.replace(/^https?:\/\//,'');
-          const intent = "intent://" + cleaned + "#Intent;scheme=https;package=com.android.chrome;end";
-          window.location.href = intent;
-          setTimeout(()=>goSameTab(url), 700); // фолбек
-          return;
-        } catch(e) { /* ignore */ }
-      }
-      // iOS TG або невдалий intent — просто йдемо звичайним способом
-      goSameTab(url);
+    // ---- РЕДІРЕКТ: БЕЗ about:blank, тільки те, що TG точно дозволяє ----
+    function go(url){
+      // найстабільніше для webview — пряма заміна поточної сторінки
+      try{ window.location.href = url; return; }catch(e){}
+      try{ window.location.assign(url); return; }catch(e){}
+      try{ window.location.replace(url); return; }catch(e){}
     }
 
     btn.addEventListener('click', ()=>{
       try{ localStorage.setItem('vgate_next', JSON.stringify({url:V, ts:Date.now()})); }catch(e){}
-      // у Telegram даємо мінімальну затримку 5c, якщо виставлено менше — для стабільності завантаження
-      const delay = isTelegram ? Math.max(D, 5) : D;
-      const end = Date.now() + delay*1000;
+      // у TG даємо мінімум 5s, щоб банери/DOM точно встигли (і TG не "заморозив" скрипти)
+      const ua = navigator.userAgent||""; const isTG=/Telegram/i.test(ua);
+      const delay = isTG ? Math.max(D,5) : D;
 
+      const end = Date.now() + delay*1000;
       (function tick(){
         const left=Math.max(0,Math.ceil((end-Date.now())/1000));
         statusEl.textContent="Preparing your video… "+left+"s";
-        if(Date.now()>=end){
-          isTelegram ? openForTelegram(V) : goSameTab(V);
-        } else { setTimeout(tick,250); }
+        if(Date.now()>=end){ go(V); } else { setTimeout(tick,250); }
       })();
 
-      // дублюючі спроби після таймера
-      setTimeout(()=>{ isTelegram ? openForTelegram(V) : goSameTab(V); }, (delay+0.6)*1000);
-      setTimeout(()=>{ isTelegram ? openForTelegram(V) : goSameTab(V); }, (delay+2.0)*1000);
-      setTimeout(()=>{ isTelegram ? openForTelegram(V) : goSameTab(V); }, (delay+4.0)*1000);
+      // одна додаткова спроба на випадок блоків
+      setTimeout(()=>go(V),(delay+1.2)*1000);
     });
+
+    // ---- АВТО-РЕЗЮМЕ (корисно для TG, якщо іноді скидає на корінь) ----
+    (function(){
+      try{
+        const raw = localStorage.getItem('vgate_next');
+        if(!raw) return;
+        const obj = JSON.parse(raw);
+        if(obj && obj.url && Date.now()-(obj.ts||0) < 2*60*1000 && !location.hash.includes('v=')){
+          // не чіпаємо користувача, просто готуємося
+          /* якщо треба автоперекидання назад на відео після перезавантаження — розкоментуй:
+          window.location.href = obj.url;
+          */
+        }
+      }catch(e){}
+    })();
   </script>
 </body>
 </html>
