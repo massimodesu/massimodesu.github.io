@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>18+ Video Access</title>
   <style>
     :root { --bg:#0f1115; --card:#151821; --muted:#9aa3b2; --accent:#3b82f6; --border:#232838; }
@@ -10,144 +10,123 @@
     body{
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       background:var(--bg); color:#e8e8e8; margin:0; padding:16px;
-      display:flex; min-height:100vh; align-items:center; justify-content:center;
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
     }
-    .wrap{width:100%; max-width:720px}
-    .card{
-      background:var(--card); border:1px solid var(--border); border-radius:16px;
-      box-shadow:0 6px 30px rgba(0,0,0,.35); padding:16px;
-    }
-    h1{font-size:20px; margin:0 0 6px}
-    .handle{font-size:12px; color:var(--muted); margin:0 0 10px}
-    .handle a{color:var(--muted); text-decoration:none}
-    .badge{display:inline-block; font-size:11px; padding:4px 8px; border:1px solid var(--border);
-      border-radius:999px; color:var(--muted); margin-bottom:10px}
-    .preview{
-      aspect-ratio:16/9; background:#0b0d12; border:1px dashed var(--border); border-radius:12px;
-      margin:10px 0 8px; display:flex; align-items:center; justify-content:center;
-      color:#94a3b8; font-size:13px; overflow:hidden
-    }
-    .fine{font-size:12px; color:var(--muted); margin:8px 0 12px}
-    .actions{display:flex; gap:12px; flex-wrap:wrap; margin-top:8px}
-    .btn{display:inline-block; padding:12px 18px; border-radius:12px; border:0; background:var(--accent);
-      color:#fff; font-weight:700; cursor:pointer; flex:1}
-    .btn.offer{background:#ef4444; flex:0 0 auto}
-    .timer{margin-top:8px; font-size:12px; color:var(--muted)}
-    .slot300{display:flex; justify-content:center; margin:10px 0}
-    .slot300 .box{width:300px; height:250px}
-    .slot320{display:flex; justify-content:center; margin:14px 0 4px}
-    .slot320 .box{width:320px; height:50px}
-
-    /* дрібні покращення мобайлу */
-    @media (max-width:360px){
-      .slot300{transform:scale(.95); transform-origin:top center}
-    }
+    .card{max-width:700px;width:100%;background:var(--card);border:1px solid var(--border);
+      border-radius:16px;padding:16px;box-shadow:0 6px 30px rgba(0,0,0,.35)}
+    h1{font-size:20px;margin:0 0 6px}
+    .handle{font-size:12px;color:#9aa3b2;margin:0 0 12px}
+    .handle a{color:#9aa3b2;text-decoration:none}
+    .badge{display:inline-block;font-size:11px;padding:4px 8px;border:1px solid var(--border);
+      border-radius:999px;color:#9aa3b2;margin-bottom:10px}
+    .preview{aspect-ratio:16/9;background:#0b0d12;border:1px dashed var(--border);
+      border-radius:12px;margin:12px 0 8px;display:flex;align-items:center;justify-content:center;
+      color:#94a3b8;font-size:13px;overflow:hidden}
+    /* показуємо ВЕСЬ постер без кропу */
+    .preview img{width:100%;height:100%;object-fit:contain;display:block}
+    .fine{font-size:12px;color:#9aa3b2;margin:8px 0 12px}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+    .btn{display:inline-block;padding:12px 18px;border-radius:12px;border:0;background:var(--accent);
+      color:#fff;font-weight:700;cursor:pointer}
+    .btn.offer{background:#ef4444}
+    .timer{margin-top:8px;font-size:12px;color:#9aa3b2}
+    .slot300{display:flex;justify-content:center;margin:10px 0}
+    .slot300 .box{width:300px;height:250px}
+    .slot320{display:flex;justify-content:center;margin:14px 0 4px}
+    .slot320 .box{width:320px;height:50px}
+    @media (max-width:360px){ .slot300{transform:scale(.95);transform-origin:top center} }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
+  <div class="card">
+    <div class="badge">18+ content • adults only</div>
+    <h1 id="title">Confirm 18+ to watch</h1>
+    <div class="handle">channel: <a href="https://t.me/massimo_desu" target="_blank" rel="noopener">@massimo_desu</a></div>
 
-      <div class="badge">18+ content • adults only</div>
-      <h1 id="title">Confirm 18+ to watch</h1>
-      <div class="handle">channel: <a href="https://t.me/massimo_desu" target="_blank" rel="noopener">@massimo_desu</a></div>
+    <!-- Прев'ю з дефолтним постером 3 дівчата -->
+    <div class="preview" id="preview">Loading preview…</div>
 
-      <!-- TOP Adsterra 300x250 -->
-      <div class="slot300">
-        <div class="box" id="ad_top_300">
-          <!-- Adsterra 300x250 -->
-          <script type="text/javascript">
-            atOptions = { 'key':'c493e0c00ad06c76089c47fdbb8fc023', 'format':'iframe', 'height':250, 'width':300, 'params':{} };
-          </script>
-          <script type="text/javascript" src="//www.highperformanceformat.com/c493e0c00ad06c76089c47fdbb8fc023/invoke.js"></script>
-        </div>
+    <!-- TOP Adsterra 300x250 -->
+    <div class="slot300">
+      <div class="box" id="ad_top_300">
+        <script type="text/javascript">
+          atOptions = { 'key':'c493e0c00ad06c76089c47fdbb8fc023', 'format':'iframe', 'height':250, 'width':300, 'params':{} };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/c493e0c00ad06c76089c47fdbb8fc023/invoke.js"></script>
       </div>
+    </div>
 
-      <!-- Preview -->
-      <div class="preview" id="preview">Video preview / cover</div>
-      <p class="fine" id="note">Enjoy your time watching, dear anime connoisseurs, stay with us🫦</p>
+    <p class="fine" id="note">Enjoy your time watching, dear anime connoisseurs, stay with us🫦</p>
 
-      <!-- Кнопки -->
-      <div class="actions">
-        <button class="btn" id="watchBtn">Watch FULL</button>
-        <a class="btn offer" id="offerBtn"
-           href="https://www.revenuecpmgate.com/a0vdxj40u7?key=caff2ec1b619c7bc75892bfffdea43a6"
-           target="_blank" rel="noopener">Extra 18+</a>
+    <div class="actions">
+      <button class="btn" id="watchBtn">Watch FULL</button>
+      <a class="btn offer" id="offerBtn"
+         href="https://www.revenuecpmgate.com/a0vdxj40u7?key=caff2ec1b619c7bc75892bfffdea43a6"
+         target="_blank" rel="noopener">Extra 18+</a>
+    </div>
+
+    <div class="timer" id="status"></div>
+
+    <!-- BOTTOM Adsterra 320x50 -->
+    <div class="slot320">
+      <div class="box" id="ad_bottom_320">
+        <script type="text/javascript">
+          atOptions = { 'key':'4408059fb33cba75abbc00cec4c087af', 'format':'iframe', 'height':50, 'width':320, 'params':{} };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/4408059fb33cba75abbc00cec4c087af/invoke.js"></script>
       </div>
-
-      <div class="timer" id="status"></div>
-
-      <!-- BOTTOM Adsterra 320x50 -->
-      <div class="slot320">
-        <div class="box" id="ad_bottom_320">
-          <!-- Adsterra 320x50 -->
-          <script type="text/javascript">
-            atOptions = { 'key':'4408059fb33cba75abbc00cec4c087af', 'format':'iframe', 'height':50, 'width':320, 'params':{} };
-          </script>
-          <script type="text/javascript" src="//www.highperformanceformat.com/4408059fb33cba75abbc00cec4c087af/invoke.js"></script>
-        </div>
-      </div>
-
     </div>
   </div>
 
   <script>
-    // ---- Параметри з хешу: #v=...|img=...|delay=7|t=...|btn=...|note=...|offer=...|offerText=... ----
+    // ---- Параметри з хеша: #v=...|img=...|delay=7|t=...|btn=...|note=...|offer=...|offerText=... ----
     function parseHash(){
       const raw=(location.hash||"").replace(/^#/,"");
       const out={}; if(!raw) return out;
-      raw.split("|").forEach(p=>{
-        const i=p.indexOf("="); if(i>0){ out[p.slice(0,i).trim()]=decodeURIComponent(p.slice(i+1).trim()); }
-      });
+      raw.split("|").forEach(p=>{const i=p.indexOf("="); if(i>0){out[p.slice(0,i).trim()]=decodeURIComponent(p.slice(i+1).trim());}});
       return out;
     }
-
     const p = parseHash();
-    const V = p.v || "";
+    const V   = p.v   || "";
     const IMG = p.img || "";
-    const D = Math.max(0, parseInt(p.delay || "7", 10));
+    const D   = Math.max(0, parseInt(p.delay || "7", 10));
 
-    if (p.t)   document.getElementById("title").textContent = p.t;
-    if (p.btn) document.getElementById("watchBtn").textContent = p.btn;
-    if (p.note)document.getElementById("note").textContent = p.note;
+    if(p.t)   document.getElementById("title").textContent = p.t;
+    if(p.btn) document.getElementById("watchBtn").textContent = p.btn;
+    if(p.note)document.getElementById("note").textContent = p.note;
+    if(p.offer){ const ob=document.getElementById("offerBtn"); ob.href=p.offer; if(p.offerText) ob.textContent=p.offerText; }
 
-    if (IMG){
+    // Дефолтний постер “3 дівчата” + без кропу
+    (function(){
+      const src = IMG || "/three_girls_crop_1280x720.jpg";
       const im = new Image();
-      im.onload = ()=>{ const b=document.getElementById("preview"); b.innerHTML=""; b.appendChild(im); };
-      im.alt="Cover"; im.src=IMG;
-      im.style.width="100%"; im.style.height="100%"; im.style.objectFit="cover";
-    }
-
-    if (p.offer){
-      const ob = document.getElementById("offerBtn");
-      ob.href = p.offer; if (p.offerText) ob.textContent = p.offerText;
-    }
+      im.alt = "Cover";
+      im.onload = () => { const b=document.getElementById("preview"); b.innerHTML=""; b.appendChild(im); };
+      im.src = src;
+    })();
 
     const statusEl = document.getElementById("status");
     const btn = document.getElementById("watchBtn");
     if(!V){ btn.disabled=true; statusEl.textContent="Error: missing video URL (v= in the hash)."; }
 
-    // обережний перехід (з затримкою, щоб банери точно відпрацювали)
-    let preOpenedWin=null;
+    // ---- ПЕРЕХІД БЕЗ about:blank (жодних pre-open) ----
     function robustGo(url){
-      if(preOpenedWin && !preOpenedWin.closed){ try{ preOpenedWin.location=url; return; }catch(e){} }
       try{ window.location.assign(url); }catch(e){}
       try{ window.location.replace(url); }catch(e){}
       try{ window.open(url,'_self'); }catch(e){}
     }
-
     btn.addEventListener('click', ()=>{
-      try{ preOpenedWin = window.open('about:blank','_blank'); }catch(e){ preOpenedWin=null; }
-      const end=Date.now()+D*1000;
+      try{ localStorage.setItem('vgate_next', JSON.stringify({url:V, ts:Date.now()})); }catch(e){}
+      const end = Date.now()+D*1000;
       (function tick(){
         const left=Math.max(0,Math.ceil((end-Date.now())/1000));
         statusEl.textContent="Preparing your video… "+left+"s";
         if(Date.now()>=end){ robustGo(V); } else { setTimeout(tick,250); }
       })();
-      // кілька додаткових спроб
-      setTimeout(()=>robustGo(V),(D+0.8)*1000);
-      setTimeout(()=>robustGo(V),(D+2.0)*1000);
-      setTimeout(()=>robustGo(V),(D+4.0)*1000);
+      // дублюючі спроби після таймера (на випадок блоків у webview)
+      setTimeout(()=>robustGo(V),(D+0.6)*1000);
+      setTimeout(()=>robustGo(V),(D+2.2)*1000);
+      setTimeout(()=>robustGo(V),(D+4.2)*1000);
     });
   </script>
 </body>
