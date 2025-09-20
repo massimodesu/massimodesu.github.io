@@ -72,7 +72,13 @@
     raw.split("|").forEach(p=>{const i=p.indexOf("="); if(i>0){out[p.slice(0,i).trim()]=decodeURIComponent(p.slice(i+1).trim());}});
     return out;
   }
-  const p=parseHash(); const V=p.v||""; const D=Math.max(0,parseInt(p.delay||"5",10));
+  const p=parseHash(); const V=p.v||"";
+  let D = Math.max(0, parseInt(p.delay || "5", 10));
+
+  // мінімум 9 c для Telegram
+  const isTG = /Telegram/i.test(navigator.userAgent) || !!window.TelegramWebviewProxy || (window.Telegram && window.Telegram.WebApp);
+  if (isTG) D = Math.max(D, 9);
+
   const statusEl=document.getElementById('status');
   if(!V){ statusEl.textContent='Error: missing video URL.'; throw new Error('no V'); }
 
