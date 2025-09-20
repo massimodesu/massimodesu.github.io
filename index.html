@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>18+ Video Access</title>
   <style>
-    :root { --bg:#0f1115; --card:#151821; --muted:#9aa3b2; --accent:#3b82f6; --border:#232838; }
+    :root { --bg:#0f1115; --card:#151821; --muted:#9aa3b2; --accent:#3b82f6; --border:#232838; --txt:#e8e8e8; }
     *{box-sizing:border-box}
     body{
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      background:var(--bg); color:#e8e8e8; margin:0; padding:16px;
+      background:var(--bg); color:var(--txt); margin:0; padding:16px;
       min-height:100vh; display:flex; align-items:center; justify-content:center;
     }
     .card{max-width:700px;width:100%;background:var(--card);border:1px solid var(--border);
@@ -29,6 +29,7 @@
     .btn{display:inline-block;padding:12px 18px;border-radius:12px;border:0;background:var(--accent);
       color:#fff;font-weight:700;cursor:pointer}
     .btn.offer{background:#ef4444}
+    .btn.ghost{background:transparent;border:1px solid var(--border);color:#e8e8e8}
     .timer{margin-top:8px;font-size:12px;color:#9aa3b2}
     .slot300{display:flex;justify-content:center;margin:10px 0}
     .slot300 .box{width:300px;height:250px}
@@ -43,7 +44,7 @@
     <h1 id="title">Confirm 18+ to watch</h1>
     <div class="handle">channel: <a href="https://t.me/massimo_desu" target="_blank" rel="noopener">@massimo_desu</a></div>
 
-    <!-- Прев'ю з дефолтним постером 3 дівчата -->
+    <!-- Прев'ю з дефолтним постером 3 дівчат (ABSOLUTE URL) -->
     <div class="preview" id="preview">Loading preview…</div>
 
     <!-- TOP Adsterra 300x250 -->
@@ -60,6 +61,7 @@
 
     <div class="actions">
       <button class="btn" id="watchBtn">Watch FULL</button>
+      <button class="btn ghost" id="openInBrowser" style="display:none">Open in Browser</button>
       <a class="btn offer" id="offerBtn"
          href="https://www.revenuecpmgate.com/a0vdxj40u7?key=caff2ec1b619c7bc75892bfffdea43a6"
          target="_blank" rel="noopener">Extra 18+</a>
@@ -96,9 +98,10 @@
     if(p.note)document.getElementById("note").textContent = p.note;
     if(p.offer){ const ob=document.getElementById("offerBtn"); ob.href=p.offer; if(p.offerText) ob.textContent=p.offerText; }
 
-    // Дефолтний постер “3 дівчата” + без кропу
+    // --- Показуємо дефолтний постер через абсолютний URL (TG webview інколи ламає root-слеш) ---
     (function(){
-      const src = IMG || "/three_girls_crop_1280x720.jpg";
+      const ABS = "https://massimodesu.github.io/three_girls_crop_1280x720.jpg"; // абсолютна адреса
+      const src = IMG || (ABS + "?v=1");
       const im = new Image();
       im.alt = "Cover";
       im.onload = () => { const b=document.getElementById("preview"); b.innerHTML=""; b.appendChild(im); };
@@ -107,26 +110,69 @@
 
     const statusEl = document.getElementById("status");
     const btn = document.getElementById("watchBtn");
+    const openBtn = document.getElementById("openInBrowser");
+
+    // --- Детект Telegram / платформи ---
+    const ua = navigator.userAgent || "";
+    const isTelegram = /Telegram/i.test(ua);
+    const isAndroid  = /Android/i.test(ua);
+    const isIOS      = /iPhone|iPad|iPod/i.test(ua);
+
+    // У Telegram показуємо допоміжну кнопку "Open in Browser"
+    if (isTelegram) {
+      openBtn.style.display = "inline-block";
+      openBtn.addEventListener("click", ()=>{
+        const link = V || location.href;
+        try { navigator.clipboard && navigator.clipboard.writeText(link); } catch(e){}
+        alert(isIOS
+          ? 'Tap ••• (top-right) → "Open in Browser". Link copied to clipboard.'
+          : 'Opening in external browser may work better. Link copied to clipboard.'
+        );
+      });
+    }
+
     if(!V){ btn.disabled=true; statusEl.textContent="Error: missing video URL (v= in the hash)."; }
 
-    // ---- ПЕРЕХІД БЕЗ about:blank (жодних pre-open) ----
-    function robustGo(url){
+    // ---- ПЕРЕХІД БЕЗ about:blank ----
+    function goSameTab(url){
       try{ window.location.assign(url); }catch(e){}
       try{ window.location.replace(url); }catch(e){}
       try{ window.open(url,'_self'); }catch(e){}
     }
+
+    function openForTelegram(url){
+      if (isAndroid) {
+        // пробуємо відкрити Chrome через intent:// (більшість TG Android підтримують)
+        try {
+          const cleaned = url.replace(/^https?:\/\//,'');
+          const intent = "intent://" + cleaned + "#Intent;scheme=https;package=com.android.chrome;end";
+          window.location.href = intent;
+          setTimeout(()=>goSameTab(url), 700); // фолбек
+          return;
+        } catch(e) { /* ignore */ }
+      }
+      // iOS TG або невдалий intent — просто йдемо звичайним способом
+      goSameTab(url);
+    }
+
     btn.addEventListener('click', ()=>{
       try{ localStorage.setItem('vgate_next', JSON.stringify({url:V, ts:Date.now()})); }catch(e){}
-      const end = Date.now()+D*1000;
+      // у Telegram даємо мінімальну затримку 5c, якщо виставлено менше — для стабільності завантаження
+      const delay = isTelegram ? Math.max(D, 5) : D;
+      const end = Date.now() + delay*1000;
+
       (function tick(){
         const left=Math.max(0,Math.ceil((end-Date.now())/1000));
         statusEl.textContent="Preparing your video… "+left+"s";
-        if(Date.now()>=end){ robustGo(V); } else { setTimeout(tick,250); }
+        if(Date.now()>=end){
+          isTelegram ? openForTelegram(V) : goSameTab(V);
+        } else { setTimeout(tick,250); }
       })();
-      // дублюючі спроби після таймера (на випадок блоків у webview)
-      setTimeout(()=>robustGo(V),(D+0.6)*1000);
-      setTimeout(()=>robustGo(V),(D+2.2)*1000);
-      setTimeout(()=>robustGo(V),(D+4.2)*1000);
+
+      // дублюючі спроби після таймера
+      setTimeout(()=>{ isTelegram ? openForTelegram(V) : goSameTab(V); }, (delay+0.6)*1000);
+      setTimeout(()=>{ isTelegram ? openForTelegram(V) : goSameTab(V); }, (delay+2.0)*1000);
+      setTimeout(()=>{ isTelegram ? openForTelegram(V) : goSameTab(V); }, (delay+4.0)*1000);
     });
   </script>
 </body>
