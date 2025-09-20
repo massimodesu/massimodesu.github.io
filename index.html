@@ -160,8 +160,10 @@
   btn.addEventListener('click', ()=>{
     try{ localStorage.setItem('vgate_next', JSON.stringify({url: V, ts: Date.now()})); }catch(e){}
 
+    // Telegram → без about:blank + мінімум 9 сек
     if(isTG){
-      location.href = buildBridgeUrl(V, D); // без about:blank
+      const dTG = Math.max(D, 9);    // мінімальна пауза для TG
+      location.href = buildBridgeUrl(V, dTG);
       return;
     }
 
